@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Removedor de EXIF</title>
+    <style>
+        body { font-family: sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; line-height: 1.6; }
+        .box { border: 2px dashed #ccc; padding: 20px; text-align: center; margin-bottom: 20px; }
+        pre { background: #f4f4f4; padding: 10px; overflow-x: auto; border-radius: 5px; }
+        button { background: #007bff; color: white; border: none; padding: 10px 15px; cursor: pointer; border-radius: 5px; }
+        button:hover { background: #0056b3; }
+    </style>
+</head>
+<body>
+    <h2>Visualizador e Removedor de EXIF</h2>
+    <div class="box">
+        <input type="file" id="imageInput" accept="image/jpeg, image/png">
+    </div>
+    <button onclick="processImage()">Processar Imagem</button>
+
+    <h3>Dados EXIF Encontrados:</h3>
+    <pre id="exifData">Nenhuma imagem processada ainda.</pre>
+
+    <div id="downloadArea" style="display:none;">
+        <h3>Sua imagem limpa:</h3>
+        <a id="downloadLink" download="imagem_sem_exif.jpg"><button>Baixar Imagem Limpa</button></a>
+    </div>
+
+    <script>
+        const API_URL = "http://localhost:8000/upload";
+
+        function processImage() {
+            const fileInput = document.getElementById('imageInput');
+            if (!fileInput.files.length) return alert('Selecione uma imagem!');
+
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+
+            reader.onloadend = async function() {
+                const base64String = reader.result.split(',')[1];
+                
+                try {
+                    const response = await fetch(API_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({ image: base64String, filename: file.name }),
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                    
+                    const data = await response.json();
+                    
+                    // Exibe dados EXIF
+                    document.getElementById('exifData').textContent = JSON.stringify(data.exif, null, 2);
+                    
+                    // Prepara Download
+                    if(data.clean_image) {
+                        document.getElementById('downloadLink').href = `data:${file.type};base64,${data.clean_image}`;
+                        document.getElementById('downloadArea').style.display = 'block';
+                    }
+                } catch (err) {
+                    alert('Erro ao processar imagem.');
+                    console.error(err);
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+    </script>
+</body>
+</html>
