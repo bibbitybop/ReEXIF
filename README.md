@@ -1,5 +1,5 @@
-## EXIF Viewer & Cleaner (Cloud-Native / Serverless)
-Este projeto consiste em uma aplicação web leve e minimalista de três camadas (Frontend, Backend e Banco de Dados) projetada para visualizar e remover metadados EXIF de imagens. A arquitetura foi desenhada para ser totalmente Serverless na nuvem AWS, contando também com um ambiente de emulação local para testes rápidos.
+## Removedor de metadados EXIF
+Este projeto consiste em um web app minimalista de três camadas (Frontend, Backend e Banco de Dados) projetada para visualizar e remover metadados EXIF de imagens. A aplicação é serverless e foi desenhada para usar a plataforma AWS.
 ------------------------------
 ## 🏛️ Arquitetura do Projeto## Cenário de Produção (AWS Serverless)
 
