@@ -19,29 +19,16 @@ Este projeto consiste em um web app minimalista de três camadas (Frontend, Back
 
 * index.html          # Frontend minimalista (HTML5/JavaScript)
 * server.py           # Backend de testes local (Python)*
-*  run_app.py          # Script gerenciador para rodar o ambiente local
 * lambda_function.py  # Código-fonte do Backend para o AWS Lambda
 * main.tf             # Infraestrutura como Código (Terraform)
 
 ------------------------------
-## 🚀 Como Executar Localmente
-Você pode testar e rodar o projeto inteiro no seu próprio computador ou dispositivo móvel (via Termux/Acode no Android) sem realizar nenhum deploy na nuvem.
-## Pré-requisitos
-Certifique-se de ter o Python instalado e a biblioteca de processamento de imagens Pillow:
+## 🚀 Como Executar a Versão Local de Testes
 
-pip install Pillow
+Instale a biblioteca Pillow: pip install Pillow
+Para rodar o backend: python server.py 
+Para rodar o frontend: python -m http.server 8080
 
-## Execução Simplificada (Orquestrada)
-Para iniciar o Frontend e o Backend locais simultaneamente com um único comando, execute:
-
-python run_app.py
-
-O script configurará o ambiente nos seguintes endereços:
-
-* 🔗 Frontend: http://localhost:8080
-* 🔗 Backend: http://localhost:8000/upload [3, 4] 
-
-Se preferir rodar manualmente por terminais separados, utilize python server.py para o backend e python -m http.server 8080 para o frontend.
 ------------------------------
 ## 🛠️ Tecnologias Utilizadas
 
@@ -49,11 +36,3 @@ Se preferir rodar manualmente por terminais separados, utilize python server.py 
 * Processamento de Imagem: Pillow (PIL)
 * Infraestrutura/Nuvem: AWS (Lambda, API Gateway, DynamoDB)
 * Ferramentas de IaC: Terraform
-
-------------------------------
-Gostaria que eu adicione as instruções detalhadas de como aplicar o comando do Terraform para subir o ambiente de produção na nuvem ou prefere incluir os detalhes de instalação do Termux para desenvolvimento no Android?
-
-[1] [https://www.ic.unicamp.br](https://www.ic.unicamp.br/~reltech/PFG/2021/PFG-21-37.pdf)
-[2] [https://www.dio.me](https://www.dio.me/articles/explorando-vuejs-o-caminho-para-uma-interface-frontend-mais-dinamica)
-[3] [https://www.dio.me](https://www.dio.me/articles/explorando-vuejs-o-caminho-para-uma-interface-frontend-mais-dinamica)
-[4] [https://dev.to](https://dev.to/davidrios/como-configurar-um-ambiente-de-desenvolvimento-com-docker-vs-code-2pc8)
