@@ -15,71 +15,28 @@ resource "aws_dynamodb_table" "exif_table" {
 }
 
 # 2. BACKEND (AWS Lambda)
-# Criação da Role de Execução do Lambda
-resource "aws_iam_role" "lambda_role" {
-  name = "exif_processor_lambda_role"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [{
-      Action    = "sts:AssumeRole"
-      Effect    = "Allow"
-      Principal = { Service = "://amazonaws.com" }
-    }]
-  })
-}
-
-# Permissão para o Lambda escrever logs e salvar dados no DynamoDB
-resource "aws_iam_policy" "lambda_policy" {
-  name = "exif_processor_lambda_policy"
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect   = "Allow"
-        Action   = [
-          "dynamodb:PutItem"
-        ]
-        Resource = "${aws_dynamodb_table.exif_table.arn}"
-      },
-      {
-        Effect   = "Allow"
-        Action   = [
-          "logs:CreateLogGroup",
-          "logs:CreateLogStream",
-          "logs:PutLogEvents"
-        ]
-        Resource = "arn:aws:logs:*:*:*"
-      }
-    ]
-  })
-}
-
-resource "aws_iam_role_policy_attachment" "lambda_logs" {
-  role       = aws_iam_role.lambda_role.name
-  policy_arn = aws_iam_policy.lambda_policy.arn
-}
-
 # Compactação do código Python em ZIP para o deploy
 data "archive_file" "lambda_zip" {
   type        = "zip"
-  source_file = "lambda_function.py"
+  source_dir  = "." # Passa a ler o diretório completo atual
   output_path = "lambda_function.zip"
+  
+  # Evita colocar arquivos de configuração do próprio Terraform dentro da sua função Lambda
+  excludes    = ["main.tf", "terraform.tfstate", "terraform.tfstate.backup", "lambda_function.zip", ".terraform", ".terraform.lock.hcl"]
 }
 
-# Declaração da Função Lambda
+# Declaração da Função Lambda utilizando a Role padrão do laboratório Vocareum
 resource "aws_lambda_function" "exif_lambda" {
   filename         = data.archive_file.lambda_zip.output_path
   function_name    = "exif_cleaner_backend"
-  role             = aws_iam_role.lambda_role.arn
+  
+  # AQUI ESTÁ A MUDANÇA: Usando a Role pré-existente da AWS Academy / Vocareum
+  role             = "arn:aws:iam::803047874156:role/LabRole"
+  
   handler          = "lambda_function.lambda_handler"
   runtime          = "python3.11"
   source_code_hash = data.archive_file.lambda_zip.output_base64sha256
-  timeout          = 15
-
-  # Layer que contém a biblioteca Pillow instalada para processar imagens
-  layers = ["arn:aws:lambda:us-east-1:770693421928:layer:Klayers-p311-Pillow:2"]
+  timeout          = 60
 
   environment {
     variables = {
@@ -121,12 +78,15 @@ resource "aws_lambda_permission" "api_gw_per_lambda" {
   statement_id  = "AllowExecutionFromAPIGateway"
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.exif_lambda.function_name
-  principal     = "://amazonaws.com"
+  
+  # Ensure this contains ONLY the string without spaces or hidden characters
+  principal     = "apigateway.amazonaws.com"
+  
   source_arn    = "${aws_apigatewayv2_api.http_api.execution_arn}/*/*"
 }
 
 # Output para copiar a URL gerada e colar no Frontend
 output "api_url" {
-  value       = aws_apigatewayv2_stage.default_stage.invoke_url
+  value       = "https://t9p1pbc0ve.execute-api.us-east-1.amazonaws.com/"
   description = "Cole esta URL na variável API_URL do seu arquivo index.html"
 }
