@@ -26,7 +26,9 @@ Web app minimalista de três camadas (Frontend, Backend e Banco de Dados) projet
 ## 🚀 Como Executar a Versão Local de Testes
 
 Instale a biblioteca Pillow: pip install Pillow
+
 Para rodar o backend: python server.py 
+
 Para rodar o frontend: python -m http.server 8080
 
 ------------------------------
